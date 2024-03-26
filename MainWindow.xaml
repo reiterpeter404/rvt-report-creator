@@ -5,8 +5,65 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:rvt_report_creator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="RVT Report Handler" Height="260" MinHeight="260" MaxHeight="260"
+        Width="500"  MinWidth="300"  MaxWidth="600">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        
+        
+        <!-- ***** -->
+        <!-- Row 0 -->
+        <!-- ***** -->
 
+        <!-- Label for Path Input -->
+        <Label Content="Dateipfad der Export-Datei:" Grid.Row="0" Margin="10,10,10,0"/>
+
+        <!-- ***** -->
+        <!-- Row 1 -->
+        <!-- ***** -->
+
+        <!-- Text Input -->
+        <TextBox x:Name="InputFilePath" Grid.Row="1" Margin="10,0,60,10"/>
+
+        <!-- File Search Button -->
+        <Button Content="Search" Grid.Row="1" Margin="5,0,10,10" HorizontalAlignment="Right" Click="SearchInputFileClick"/>
+        
+        <!-- ***** -->
+        <!-- Row 2 -->
+        <!-- ***** -->
+        <!-- Label for Path Output -->
+        <Label Content="Dateipfad des Reports:" Grid.Row="2" Margin="10,10,10,0"/>
+
+
+        <!-- ***** -->
+        <!-- Row 3 -->
+        <!-- ***** -->
+        <!-- Text Input -->
+        <TextBox x:Name="OutputFilePath" IsEnabled="False" Text="C:\report\" Grid.Row="3" Margin="10,0,60,10"/>
+
+        <!-- File Search Button -->
+        <Button Content="Search" IsEnabled="False" Grid.Row="3" Margin="5,0,10,10" HorizontalAlignment="Right" Click="SearchOutputFilePathClick"/>
+
+
+        <!-- ***** -->
+        <!-- Row 4 -->
+        <!-- ***** -->
+
+        <!-- ***** -->
+        <!-- Row 5 -->
+        <!-- ***** -->
+
+        <!-- Close and Start Buttons -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <Button Content="Close" Width="100" Margin="0,0,10,0" Click="CloseButtonClick"/>
+            <Button Content="Start" Width="100" Click="StartButtonClick"/>
+        </StackPanel>
     </Grid>
 </Window>
