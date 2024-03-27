@@ -13,6 +13,7 @@ public abstract class ExcelFunctions
 {
     private const string NanValueString = "NaN";
     private const string ExcelExtension = ".xlsx";
+    private const bool CreateDailyReports = true;
 
     /// <summary>
     /// Create the Excel file with the given data.
@@ -28,7 +29,10 @@ public abstract class ExcelFunctions
 
         var sheets = AppendSummarySheet(data, workbookPart, spreadsheetDocument);
 
-        AppendDailyReports(data, workbookPart, spreadsheetDocument, sheets);
+        if(CreateDailyReports)
+        {
+            AppendDailyReports(data, workbookPart, spreadsheetDocument, sheets);
+        }
     }
 
     /// <summary>
@@ -52,12 +56,25 @@ public abstract class ExcelFunctions
         Sheets sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
         sheets.Append(sumSheetSheet);
 
-        List<string> headerElements = CommonFunctions.LoadHeaderElements();
-        List<string> subHeaderElements = CommonFunctions.LoadSubHeaderElements();
-
         // Add headers to sum sheet
         SheetData sumSheetSheetData = sumSheetPart.Worksheet.GetFirstChild<SheetData>();
         Row sumSheetHeaderRow = new Row();
+        var sumSheetSubHeaderRow = AppendSumSheetHeaders(sumSheetHeaderRow, sumSheetSheetData);
+
+        AppendStatisticData(data, sumSheetSheetData, sumSheetSubHeaderRow);
+
+        return sheets;
+    }
+
+    /// <summary>
+    /// Append the headers to the sum sheet.
+    /// </summary>
+    /// <param name="sumSheetHeaderRow"></param>
+    /// <param name="sumSheetSheetData"></param>
+    /// <returns></returns>
+    private static Row AppendSumSheetHeaders(Row sumSheetHeaderRow, SheetData? sumSheetSheetData)
+    {
+        List<string> headerElements = CommonFunctions.LoadHeaderElements();
         foreach (var headerElement in headerElements)
         {
             sumSheetHeaderRow.Append(
@@ -68,6 +85,7 @@ public abstract class ExcelFunctions
                 });
         }
 
+        List<string> subHeaderElements = CommonFunctions.LoadSubHeaderElements();
         sumSheetSheetData.Append(sumSheetHeaderRow);
 
         Row sumSheetSubHeaderRow = new Row();
@@ -81,6 +99,17 @@ public abstract class ExcelFunctions
                 });
         }
 
+        return sumSheetSubHeaderRow;
+    }
+
+    /// <summary>
+    /// Append the statistic data to the sum sheet.
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="sumSheetSheetData"></param>
+    /// <param name="sumSheetSubHeaderRow"></param>
+    private static void AppendStatisticData(List<RvtStatistics> data, SheetData sumSheetSheetData, Row sumSheetSubHeaderRow)
+    {
         sumSheetSheetData.Append(sumSheetSubHeaderRow);
 
         foreach (var rvtStatistics in data)
@@ -121,11 +150,8 @@ public abstract class ExcelFunctions
                     );
                 }
             }
-
             sumSheetSheetData.Append(dataRow);
         }
-
-        return sheets;
     }
 
     /// <summary>
