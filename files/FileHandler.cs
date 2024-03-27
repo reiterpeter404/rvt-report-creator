@@ -53,6 +53,7 @@ public abstract class FileHandler
         string currentDateTime = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
         string fileName = "rvt-report-" + currentDateTime;
         string filePathWithoutExtension = Path.Combine(filePath, fileName);
+        string easyExcelFilePath = Path.Combine(filePath, "x" +fileName);
 
         // create an empty directory if it does not exist
         Directory.CreateDirectory(filePath);
@@ -60,6 +61,7 @@ public abstract class FileHandler
         if (CreateExcelOutput)
         {
             ExcelFunctions.CreateExcel(data, filePathWithoutExtension);
+            ExcelFunctions.CreateExcelEasy(data, easyExcelFilePath + ".xlsx");
         }
 
         if (CreateCsvOutput)

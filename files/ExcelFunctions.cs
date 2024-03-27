@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -28,6 +27,57 @@ public abstract class ExcelFunctions
     private const string HttpSchemasOpenXmlFormatsOrgOfficeDocumentRelationships = "https://schemas.openxmlformats.org/officeDocument/2006/relationships";
     private const string HttpSchemasOpenXmlFormatsOrgMarkupCompatibility = "https://schemas.openxmlformats.org/markup-compatibility/2006";
     private const string HttpSchemasMicrosoftComOfficeSpreadSheet = "https://schemas.microsoft.com/office/spreadsheetml/2009/9/ac";
+
+    public static void CreateExcelEasy(List<RvtStatistics> data, string filePath)
+    {
+        using SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook);
+        WorkbookPart workbookPart = spreadsheetDocument.AddWorkbookPart();
+        workbookPart.Workbook = new Workbook();
+
+        Sheets sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
+
+        foreach (var rvtStatistics in data)
+        {
+            WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+            worksheetPart.Worksheet = new Worksheet(new SheetData());
+
+            Sheet sheet = new Sheet()
+            {
+                Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = (uint)sheets.ChildElements.Count + 1,
+                Name = rvtStatistics.Date.ToString("dd-MM")
+            };
+            sheets.Append(sheet);
+
+            SheetData sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+            Row row = new Row();
+            row.Append(
+                new Cell() { CellValue = new CellValue("Datum und Uhrzeit"), DataType = CellValues.String },
+                new Cell() { CellValue = new CellValue("Durchfluss Pufferbehälter"), DataType = CellValues.String },
+                new Cell() { CellValue = new CellValue("Durchfluss Mbw."), DataType = CellValues.String },
+                new Cell() { CellValue = new CellValue("Temperatur Mbw."), DataType = CellValues.String },
+                new Cell() { CellValue = new CellValue("Ph-Wert Mbw."), DataType = CellValues.String }
+            );
+            sheetData.Append(row);
+
+            foreach (var rvtStatisticsElement in rvtStatistics.Elements)
+            {
+                row = new Row();
+                row.Append(
+                    new Cell() { CellValue = new CellValue(rvtStatisticsElement.DateAndTime), DataType = CellValues.String },
+                    new Cell() { CellValue = new CellValue(rvtStatisticsElement.Pufferbehaelter.Durchfluss), DataType = CellValues.Number },
+                    new Cell() { CellValue = new CellValue(rvtStatisticsElement.Mbw.Durchfluss), DataType = CellValues.Number },
+                    new Cell() { CellValue = new CellValue(rvtStatisticsElement.Mbw.Temperature), DataType = CellValues.Number },
+                    new Cell() { CellValue = new CellValue(rvtStatisticsElement.Mbw.PhWert), DataType = CellValues.Number }
+                );
+                sheetData.Append(row);
+            }
+
+            worksheetPart.Worksheet.Save();
+        }
+
+        workbookPart.Workbook.Save();
+    }
 
     /// <summary>
     /// Create the Excel file with the given data.
