@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -22,6 +23,11 @@ public abstract class ExcelFunctions
     private const string Font = "Calibri";
     private const string ExcelExtension = ".xlsx";
     private const uint DefaultStyleIndex = 1U;
+    private const string HttpsSchemasOpenXmlFormatsMarkupCompatibility = "https://schemas.openxmlformats.org/markup-compatibility/2006";
+    private const string HttpsSchemasMicrosoftComOfficeSpreadsheet = "https://schemas.microsoft.com/office/spreadsheetml/2009/9/ac";
+    private const string HttpSchemasOpenXmlFormatsOrgOfficeDocumentRelationships = "https://schemas.openxmlformats.org/officeDocument/2006/relationships";
+    private const string HttpSchemasOpenXmlFormatsOrgMarkupCompatibility = "https://schemas.openxmlformats.org/markup-compatibility/2006";
+    private const string HttpSchemasMicrosoftComOfficeSpreadSheet = "https://schemas.microsoft.com/office/spreadsheetml/2009/9/ac";
 
     /// <summary>
     /// Create the Excel file with the given data.
@@ -74,14 +80,14 @@ public abstract class ExcelFunctions
         }
 
         Row tRow = new Row();
-        tRow.Append(CreateCell(element.Date.Month));
-        tRow.Append(CreateCell(element.Date.Day));
-        tRow.Append(CreateCell(element.CalculateContainerOutflowPerDay()));
-        tRow.Append(CreateCell(element.CalculateOutFlowPerDay()));
-        tRow.Append(CreateCell(element.CalculatePhMax()));
-        tRow.Append(CreateCell(element.CalculatePhMin()));
-        tRow.Append(CreateCell(element.CalculateTemperatureMean()));
-        tRow.Append(CreateCell(element.CalculateTemperatureMax()));
+        tRow.Append(CreateNumberCell(element.Date.Month));
+        tRow.Append(CreateNumberCell(element.Date.Day));
+        tRow.Append(CreateDecimalCell(element.CalculateContainerOutflowPerDay()));
+        tRow.Append(CreateDecimalCell(element.CalculateOutFlowPerDay()));
+        tRow.Append(CreateDecimalCell(element.CalculatePhMax()));
+        tRow.Append(CreateDecimalCell(element.CalculatePhMin()));
+        tRow.Append(CreateDecimalCell(element.CalculateTemperatureMean()));
+        tRow.Append(CreateDecimalCell(element.CalculateTemperatureMax()));
 
         // append percentiles
         List<TimeSpan> startTime = CommonFunctions.LoadStartTime();
@@ -90,7 +96,7 @@ public abstract class ExcelFunctions
         for (int i = 0; i < startTime.Count; i++)
         {
             double temperaturePercentile = element.CreateTemperaturePercentile(startTime[i], endTimes[i], CommonFunctions.DefaultPercentage);
-            tRow.Append(CreateCell(temperaturePercentile));
+            tRow.Append(CreateDecimalCell(temperaturePercentile));
         }
 
         sheetData.Append(tRow);
@@ -106,7 +112,7 @@ public abstract class ExcelFunctions
         Row workRow = new Row();
         foreach (string element in elements)
         {
-            workRow.Append(CreateCell(element, 2U));
+            workRow.Append(CreateTextCell(element, 2U));
         }
 
         return workRow;
@@ -122,7 +128,7 @@ public abstract class ExcelFunctions
         Row workRow = new Row();
         for (int i = 0; i < count; i++)
         {
-            workRow.Append(CreateCell("", 2U));
+            workRow.Append(CreateTextCell("", 2U));
         }
 
         return workRow;
@@ -165,15 +171,20 @@ public abstract class ExcelFunctions
                 Ignorable = Ignorable
             }
         };
-        worksheet.AddNamespaceDeclaration("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
-        worksheet.AddNamespaceDeclaration(Prefix, "http://schemas.openxmlformats.org/markup-compatibility/2006");
-        worksheet.AddNamespaceDeclaration(Ignorable, "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
+        worksheet.AddNamespaceDeclaration("r", HttpSchemasOpenXmlFormatsOrgOfficeDocumentRelationships);
+        worksheet.AddNamespaceDeclaration(Prefix, HttpSchemasOpenXmlFormatsOrgMarkupCompatibility);
+        worksheet.AddNamespaceDeclaration(Ignorable, HttpSchemasMicrosoftComOfficeSpreadSheet);
 
-        worksheet.Append(new SheetDimension() { Reference = "A1" });
-        worksheet.Append(CreateSheetViews());
-        worksheet.Append(CreateSheetFormatProperties());
-        worksheet.Append(sheetData);
-        worksheet.Append(CreatePageMargins());
+        OpenXmlElement[] worksheetChildren = new OpenXmlElement[]
+        {
+            new SheetDimension() { Reference = "A1" },
+            CreateSheetViews(),
+            CreateSheetFormatProperties(),
+            sheetData,
+            CreatePageMargins()
+        };
+
+        worksheet.Append(worksheetChildren);
 
         WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>(SumSheetId);
         worksheetPart.Worksheet = worksheet;
@@ -239,18 +250,23 @@ public abstract class ExcelFunctions
                 Ignorable = Ignorable
             }
         };
-        stylesheet.AddNamespaceDeclaration(Prefix, "http://schemas.openxmlformats.org/markup-compatibility/2006");
-        stylesheet.AddNamespaceDeclaration(Ignorable, "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
+        stylesheet.AddNamespaceDeclaration(Prefix, HttpsSchemasOpenXmlFormatsMarkupCompatibility);
+        stylesheet.AddNamespaceDeclaration(Ignorable, HttpsSchemasMicrosoftComOfficeSpreadsheet);
 
-        stylesheet.Append(CreateFonts());
-        stylesheet.Append(CreateFills());
-        stylesheet.Append(CreateBorders());
-        stylesheet.Append(CreateCellStyleFormats());
-        stylesheet.Append(CreateCellFormats());
-        stylesheet.Append(CreateCellStyles());
-        stylesheet.Append(CreateDifferentialFormats());
-        stylesheet.Append(CreateTableStyles());
-        stylesheet.Append(CreateStylesheetExtensions());
+        OpenXmlElement[] styleSheetElements = new OpenXmlElement[]
+        {
+            CreateFonts(),
+            CreateFills(),
+            CreateBorders(),
+            CreateCellStyleFormats(),
+            CreateCellFormats(),
+            CreateCellStyles(),
+            CreateDifferentialFormats(),
+            CreateTableStyles(),
+            CreateStylesheetExtensions()
+        };
+
+        stylesheet.Append(styleSheetElements);
 
         WorkbookStylesPart workbookStylesPart = workbookPart1.AddNewPart<WorkbookStylesPart>(ContentType);
         workbookStylesPart.Stylesheet = stylesheet;
@@ -521,12 +537,12 @@ public abstract class ExcelFunctions
     /// <param name="text"></param>
     /// <param name="styleIndex"></param>
     /// <returns></returns>
-    private static Cell CreateCell(string text, uint styleIndex = DefaultStyleIndex)
+    private static Cell CreateTextCell(string text, uint styleIndex = DefaultStyleIndex)
     {
         Cell cell = new()
         {
             StyleIndex = styleIndex,
-            DataType = ResolveCellDataTypeOnValue(text),
+            DataType = CellValues.String,
             CellValue = new CellValue(text)
         };
         return cell;
@@ -538,7 +554,7 @@ public abstract class ExcelFunctions
     /// <param name="number"></param>
     /// <param name="styleIndex"></param>
     /// <returns></returns>
-    private static Cell CreateCell(int number, uint styleIndex = DefaultStyleIndex)
+    private static Cell CreateNumberCell(int number, uint styleIndex = DefaultStyleIndex)
     {
         Cell cell = new()
         {
@@ -555,7 +571,7 @@ public abstract class ExcelFunctions
     /// <param name="number">The number to insert to the cell.</param>
     /// <param name="styleIndex">The style of the cell.</param>
     /// <returns>The cell object.</returns>
-    private static Cell CreateCell(double number, uint styleIndex = DefaultStyleIndex)
+    private static Cell CreateDecimalCell(double number, uint styleIndex = DefaultStyleIndex)
     {
         if (double.IsNaN(number))
         {
@@ -573,20 +589,5 @@ public abstract class ExcelFunctions
             DataType = CellValues.Number,
             CellValue = new CellValue(number)
         };
-    }
-
-    /// <summary>
-    /// Check the given text for its data type.
-    /// </summary>
-    /// <param name="text">The text to insert to the cell.</param>
-    /// <returns>The value type of the cell.</returns>
-    private static EnumValue<CellValues> ResolveCellDataTypeOnValue(string text)
-    {
-        if (int.TryParse(text, out _) || double.TryParse(text, out _))
-        {
-            return CellValues.Number;
-        }
-
-        return CellValues.String;
     }
 }
