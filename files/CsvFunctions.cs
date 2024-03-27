@@ -14,8 +14,8 @@ public abstract class CsvFunctions
     /// <summary>
     /// Create the CSV output file.
     /// </summary>
-    /// <param name="data"></param>
-    /// <param name="correctedFilePath"></param>
+    /// <param name="data">A collection of the data of the export file.</param>
+    /// <param name="correctedFilePath">The file path to store the CSV file.</param>
     public static void CreateCsvOutput(List<RvtStatistics?> data, string correctedFilePath)
     {
         StringBuilder stringBuilder = new();
