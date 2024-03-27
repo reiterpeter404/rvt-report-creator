@@ -15,7 +15,7 @@ namespace rvt_report_creator.files;
 public abstract class FileHandler
 {
     private const bool CreateExcelOutput = true;
-    private const bool CreateCsvOutput = true;
+    private const bool CreateCsvOutput = false;
     private const string DateAndTimeString = "Datum und Uhrzeit;";
 
     /// <summary>
