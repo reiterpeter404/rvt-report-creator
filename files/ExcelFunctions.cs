@@ -1,5 +1,3 @@
-// code copied from https://www.c-sharpcorner.com/article/creating-excel-file-using-openxml/
-
 using System;
 using System.Collections.Generic;
 using DocumentFormat.OpenXml;
@@ -72,7 +70,7 @@ public abstract class ExcelFunctions
     /// <param name="sumSheetHeaderRow">The header row to append the data.</param>
     /// <param name="sumSheetSheetData">The sheet data to append the data.</param>
     /// <returns>The current row of the header.</returns>
-    private static Row AppendSumSheetHeaders(Row sumSheetHeaderRow, SheetData? sumSheetSheetData)
+    private static Row AppendSumSheetHeaders(OpenXmlElement sumSheetHeaderRow, OpenXmlElement? sumSheetSheetData)
     {
         List<string> headerElements = CommonFunctions.LoadHeaderElements();
         foreach (var headerElement in headerElements)
@@ -114,7 +112,7 @@ public abstract class ExcelFunctions
 
         foreach (var rvtStatistics in data)
         {
-            if (rvtStatistics?.Elements.Count < 10)
+            if (rvtStatistics.Elements.Count < 10)
             {
                 continue;
             }
