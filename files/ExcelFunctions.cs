@@ -65,7 +65,7 @@ public abstract class ExcelFunctions
     /// </summary>
     /// <param name="element">The object that holds the elements of a day.</param>
     /// <param name="sheetData">The sheet data that will be added to the Excel file.</param>
-    private static void GenerateRowForChildPartDetail(RvtStatistics? element, SheetData sheetData)
+    private static void GenerateRowForChildPartDetail(RvtStatistics? element, OpenXmlElement sheetData)
     {
         // avoid elements with less than 10 entries
         if (element?.Elements.Count < 10)
@@ -154,15 +154,10 @@ public abstract class ExcelFunctions
     /// <summary>
     /// Generate the content for the Excel file.
     /// </summary>
-    /// <param name="workbookPart1"></param>
+    /// <param name="workbookPart"></param>
     /// <param name="sheetData"></param>
-    private static void GenerateWorksheetContent(OpenXmlPartContainer workbookPart1, OpenXmlElement sheetData)
+    private static void GenerateWorksheetContent(OpenXmlPartContainer workbookPart, OpenXmlElement sheetData)
     {
-        SheetDimension sheetDimension = new SheetDimension() { Reference = "A1" };
-        SheetViews sheetViews = CreateSheetViews();
-        SheetFormatProperties sheetFormatProperties = CreateSheetFormatProperties();
-        PageMargins pageMargins = CreatePageMargins();
-
         Worksheet worksheet = new Worksheet()
         {
             MCAttributes = new MarkupCompatibilityAttributes()
@@ -174,13 +169,13 @@ public abstract class ExcelFunctions
         worksheet.AddNamespaceDeclaration(Prefix, "http://schemas.openxmlformats.org/markup-compatibility/2006");
         worksheet.AddNamespaceDeclaration(Ignorable, "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
 
-        worksheet.Append(sheetDimension);
-        worksheet.Append(sheetViews);
-        worksheet.Append(sheetFormatProperties);
+        worksheet.Append(new SheetDimension() { Reference = "A1" });
+        worksheet.Append(CreateSheetViews());
+        worksheet.Append(CreateSheetFormatProperties());
         worksheet.Append(sheetData);
-        worksheet.Append(pageMargins);
+        worksheet.Append(CreatePageMargins());
 
-        WorksheetPart worksheetPart = workbookPart1.AddNewPart<WorksheetPart>(SumSheetId);
+        WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>(SumSheetId);
         worksheetPart.Worksheet = worksheet;
     }
 
@@ -278,7 +273,7 @@ public abstract class ExcelFunctions
     /// </summary>
     /// <param name="fonts"></param>
     /// <param name="bold"></param>
-    private static void AppendFont(Fonts fonts, bool bold)
+    private static void AppendFont(OpenXmlElement fonts, bool bold)
     {
         Font font = new Font();
         if (bold)
@@ -338,24 +333,18 @@ public abstract class ExcelFunctions
         return borders;
     }
 
-    private static void CreateBorders(Borders borders)
+    private static void CreateBorders(OpenXmlElement borders)
     {
-        LeftBorder leftBorder = new LeftBorder();
-        RightBorder rightBorder = new RightBorder();
-        TopBorder topBorder = new TopBorder();
-        BottomBorder bottomBorder = new BottomBorder();
-        DiagonalBorder diagonalBorder = new DiagonalBorder();
-
         Border border = new Border();
-        border.Append(leftBorder);
-        border.Append(rightBorder);
-        border.Append(topBorder);
-        border.Append(bottomBorder);
-        border.Append(diagonalBorder);
+        border.Append(new LeftBorder());
+        border.Append(new RightBorder());
+        border.Append(new TopBorder());
+        border.Append(new BottomBorder());
+        border.Append(new DiagonalBorder());
         borders.Append(border);
     }
 
-    private static void CreateCustomBorders(Borders borders)
+    private static void CreateCustomBorders(OpenXmlElement borders)
     {
         LeftBorder leftBorder = new LeftBorder() { Style = BorderStyleValues.Thin };
         leftBorder.Append(CreateColorElement());
@@ -419,7 +408,7 @@ public abstract class ExcelFunctions
         return cellFormats;
     }
 
-    private static void AppendCellFormat(CellFormats cellFormats)
+    private static void AppendCellFormat(OpenXmlElement cellFormats)
     {
         CellFormat cellFormat = new CellFormat()
         {
@@ -429,7 +418,7 @@ public abstract class ExcelFunctions
         cellFormats.Append(cellFormat);
     }
 
-    private static void AppendCellFormatUsingBorder(CellFormats cellFormats)
+    private static void AppendCellFormatUsingBorder(OpenXmlElement cellFormats)
     {
         CellFormat cellFormat = new CellFormat()
         {
@@ -439,7 +428,7 @@ public abstract class ExcelFunctions
         cellFormats.Append(cellFormat);
     }
 
-    private static void AppendCellFormatUsingFontAndBorder(CellFormats cellFormats)
+    private static void AppendCellFormatUsingFontAndBorder(OpenXmlElement cellFormats)
     {
         CellFormat cellFormat = new CellFormat()
         {
