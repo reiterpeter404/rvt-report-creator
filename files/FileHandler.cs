@@ -15,7 +15,6 @@ namespace rvt_report_creator.files;
 public abstract class FileHandler
 {
     private const bool CreateExcelOutput = true;
-    private const bool CreateCsvOutput = false;
     private const string DateAndTimeString = "Datum und Uhrzeit;";
 
     /// <summary>
@@ -48,7 +47,7 @@ public abstract class FileHandler
     /// </summary>
     /// <param name="data">The input data from the exported file.</param>
     /// <param name="filePath">The path to store the finished report.</param>
-    public static void CreateReport(List<RvtStatistics?> data, string filePath)
+    public static void CreateReport(List<RvtStatistics?> data, string filePath,bool csvIsEnabled, bool dailyReportIsEnabled)
     {
         string currentDateTime = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
         string fileName = "rvt-report-" + currentDateTime;
@@ -59,10 +58,10 @@ public abstract class FileHandler
 
         if (CreateExcelOutput)
         {
-            ExcelFunctions.CreateExcel(data, filePathWithoutExtension);
+            ExcelFunctions.CreateExcel(data, filePathWithoutExtension, dailyReportIsEnabled);
         }
 
-        if (CreateCsvOutput)
+        if (csvIsEnabled)
         {
             CsvFunctions.CreateCsvOutput(data, filePathWithoutExtension);
         }

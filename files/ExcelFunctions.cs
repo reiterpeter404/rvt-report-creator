@@ -11,14 +11,13 @@ public abstract class ExcelFunctions
 {
     private const string NanValueString = "NaN";
     private const string ExcelExtension = ".xlsx";
-    private const bool CreateDailyReports = true;
 
     /// <summary>
     /// Create the Excel file with the given data.
     /// </summary>
     /// <param name="data">The summary of the exported data.</param>
     /// <param name="filePath">The path of the resulting file, without any file extension.</param>
-    public static void CreateExcel(List<RvtStatistics> data, string filePath)
+    public static void CreateExcel(List<RvtStatistics> data, string filePath, bool dailyReportIsEnabled)
     {
         string excelFilePath = filePath + ExcelExtension;
         using SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Create(excelFilePath, SpreadsheetDocumentType.Workbook);
@@ -27,7 +26,7 @@ public abstract class ExcelFunctions
 
         Sheets sheets = AppendSummarySheet(data, workbookPart, spreadsheetDocument);
 
-        if (CreateDailyReports)
+        if (dailyReportIsEnabled)
         {
             AppendDailyReports(data, workbookPart, spreadsheetDocument, sheets);
         }

@@ -76,9 +76,18 @@ namespace rvt_report_creator
                 return;
             }
 
+            // check the state of the checkboxes for the output files
+            bool csvIsEnabled = EnableCsvExport.IsChecked == true;
+            bool dailyReportIsEnabled = EnableDailyReports.IsChecked == true;
+            
             List<RvtElement> rvtElements = FileHandler.ReadFile(InputFilePath.Text);
             List<RvtStatistics?> rvtStatistics = FilterElementsByDate(rvtElements);
-            FileHandler.CreateReport(rvtStatistics, OutputFilePath.Text);
+            FileHandler.CreateReport(
+                rvtStatistics,
+                OutputFilePath.Text,
+                csvIsEnabled, 
+                dailyReportIsEnabled
+            );
         }
 
         /// <summary>
