@@ -72,11 +72,15 @@ public abstract class FileHandler
 
     /// <summary>
     /// Read the content of a text file.
+    /// If the input file is not in Unicode, it will be read as UTF-8.
     /// </summary>
     /// <param name="filePath">The path to the file to read.</param>
     /// <returns>A string containing the file content.</returns>
     private static string ReadTextFile(string filePath)
     {
-        return File.ReadAllText(filePath, Encoding.Unicode);
+        string fileContent = File.ReadAllText(filePath, Encoding.Unicode);
+        return fileContent.Contains("\r\n") 
+            ? fileContent 
+            : File.ReadAllText(filePath, Encoding.UTF8);
     }
 }
