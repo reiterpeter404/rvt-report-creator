@@ -36,16 +36,17 @@ public abstract class CsvFunctions
     /// <param name="stringBuilder">The string builder for the CSV file.</param>
     private static void CreateCsvHeader(StringBuilder stringBuilder)
     {
+        bool isFirstElement = true;
         List<string> headerElements = CommonFunctions.LoadHeaderElements();
         foreach (string element in headerElements)
         {
-            stringBuilder.Append(element);
-            if (headerElements.IndexOf(element) == 0)
+            if (!isFirstElement)
             {
-                continue;
+                stringBuilder.Append(CsvSeparator);
             }
 
-            stringBuilder.Append(CsvSeparator);
+            stringBuilder.Append(element);
+            isFirstElement = false;
         }
 
         stringBuilder.AppendLine();
@@ -57,16 +58,17 @@ public abstract class CsvFunctions
     /// <param name="stringBuilder">The string builder for the CSV file.</param>
     private static void CreateCsvSubHeader(StringBuilder stringBuilder)
     {
+        bool isFirstElement = true;
         List<string> subHeaderElements = CommonFunctions.LoadSubHeaderElements();
         foreach (string element in subHeaderElements)
         {
-            stringBuilder.Append(element);
-            if (subHeaderElements.IndexOf(element) == 0)
+            if (!isFirstElement)
             {
-                continue;
+                stringBuilder.Append(CsvSeparator);
             }
 
-            stringBuilder.Append(CsvSeparator);
+            stringBuilder.Append(element);
+            isFirstElement = false;
         }
 
         stringBuilder.AppendLine();
